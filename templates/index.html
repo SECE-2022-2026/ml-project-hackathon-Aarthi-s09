@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Sign Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Upload Traffic Sign Image</h2>
+        <img src="https://static.vecteezy.com/system/resources/previews/003/374/169/original/traffic-police-holding-sign-stop-and-go-vector.jpg" alt="Traffic Police Holding Stop and Go Sign" height="300" width="300">
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="image" name="image" accept="image/*" required>
+            <br>
+            <button type="submit">Classify</button>
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Get the form and result div
+        const form = document.getElementById("upload-form");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            // Disable the button while uploading
+            const button = form.querySelector("button");
+            button.disabled = true;
+            button.textContent = "Uploading...";
+
+            // Send the image to the server for classification
+            try {
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.prediction) {
+                    resultDiv.textContent = `Predicted Traffic Sign: ${data.prediction}`;
+                } else {
+                    resultDiv.textContent = "Error: Unable to classify the image.";
+                    resultDiv.classList.add("error");
+                }
+            } catch (error) {
+                resultDiv.textContent = "Error: Something went wrong!";
+                resultDiv.classList.add("error");
+            }
+
+            // Re-enable the button after the request
+            button.disabled = false;
+            button.textContent = "Classify";
+        });
+    </script>
+</body>
+</html>
